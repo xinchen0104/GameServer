@@ -37,9 +37,51 @@ void Decode(uint8_t *inBuf, size_t bufSize, Msg* frameData){
   	if (frameData->msgType == PLAYER_ACTION)
   		frameData->action = (ActionType)((uint32_t)(mb->action));
 }
-void GetNextMsg(FILE *in, uint8_t *buf, size_t bufSize){
-
+/*int GetNextMsg(FILE *in, size_t msgSize, uint8_t *buf, size_t bufSize){
+	int count = 0;
+	int nextChar;
+	if(bufSize < msgSize)
+		DieWithUserMessage("GetNextMsg()", "buf is too small");
+	while (count < msgSize) {
+    	nextChar = getc(in);
+    	if (nextChar == EOF) {
+    		if (count > 0){
+        		DieWithUserMessage("GetNextMsg()", "Stream ended prematurely");
+    		}else{
+        		return -1;
+    		}
+    	}
+    buf[count++] = nextChar;
+	}
+	return count;
+}*/
+int GetNextMsg(FILE *in, size_t msgSize, uint8_t *buf, size_t bufSize){
+	printf("GetNextMsg\n");
+	fflush(stdout);
+	int count = 0;
+	if(bufSize < msgSize)
+		DieWithUserMessage("GetNextMsg()", "buf is too small");
+	printf("begin reading");
+	fflush(stdout);
+	count = fread(buf, msgSize, 1, in);
+	printf("%d\n", count);
+	fflush(stdout);
+	if(count != 1){
+		return -1;
+	}
+	return count;
 }
-void PutMsg(uint8_t *buf, size_t msgSize, FILE *out){
+int PutMsg(MsgBin* buf, size_t msgSize, size_t msgCount, FILE *out){
+	if (fwrite(buf, msgSize, msgCount, out) != msgCount)
+		return -1;
+	fflush(out);
+	return msgCount;
+}
 
+void MsgInit(Msg* dst, MsgType msgType, uint8_t playerIndex, uint32_t tickIndex, uint32_t msgNum){
+	dst->msgType = msgType;
+	dst->playerIndex = playerIndex;
+	dst->tickIndex = tickIndex;
+	dst->msgNum = msgNum;
+	dst->isRes = false;
 }

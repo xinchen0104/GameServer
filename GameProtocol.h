@@ -33,14 +33,14 @@ typedef struct MsgBin
     uint8_t header;
     uint8_t msgType;
     uint8_t playerIndex;
-    uint32_t tickIndex;
     union{
         uint8_t msgNum;
         uint8_t action;
-    };    
+    };
+    uint32_t tickIndex;
 } MsgBin;
-
-void Encode(void* frameData, uint8_t *outBuf, size_t bufSize);
-void Decode(uint8_t *inBuf, size_t bufSize, void* frameData);
-void GetNextMsg(FILE *in, uint8_t *buf, size_t bufSize);
-void PutMsg(uint8_t *buf, size_t msgSize, FILE *out);
+void MsgInit(Msg* dst, MsgType msgType, uint8_t playerIndex, uint32_t tickIndex, uint32_t msgNum);
+void Encode(Msg* frameData, uint8_t *outBuf, size_t bufSize);
+void Decode(uint8_t *inBuf, size_t bufSize, Msg* frameData);
+int GetNextMsg(FILE *in, size_t msgSize, uint8_t *buf, size_t bufSize);
+int PutMsg(MsgBin *buf, size_t msgSize, size_t msgCount, FILE *out);
